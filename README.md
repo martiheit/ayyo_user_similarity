@@ -19,3 +19,4 @@ We also tried various word embedding techniques. Because our dataset was small (
 
 ## Results
 The results from our investigation were encouraging! As mentioned, this was an unsupervised task, so we were unable to compute performance metrics, but we used our best judgement to evaluate results.
+![User Similarity Heatmap](user_heatmap.png)
