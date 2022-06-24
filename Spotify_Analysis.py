@@ -11,6 +11,7 @@ import pandas as pd
 import re
 import string
 from lyricsgenius import Genius
+from torch.utils.data import Dataset, DataLoader
 
 #### Variables ####
 ENGLISH_STOP_WORDS = frozenset([
@@ -132,6 +133,18 @@ def doc2vec(text, gloves, tokenizer=None):
     total = np.sum(vec, axis = 0)
     return total / len(vec)
 
+def compute_centroid(song_list, glove, tokenizer=None):
+    '''
+    The centroid of a set of vectors is the center of mass.
+    '''
+    vector_list = [doc2vec(lyrics, glove, tokenizer=tokenizer) for lyrics in song_list if lyrics != '']
+    n = len(vector_list)
+    return sum(vector_list)/n
+
+def similarity_score(user1, user2):
+    return np.linalg.norm(user1 - user2)
+
+
 def get_users_to_posts(aws_access_key, aws_secret_key):
     """
     Connect to database where Ay-Yo! posts are stored to 
@@ -173,3 +186,33 @@ def get_users_to_posts(aws_access_key, aws_secret_key):
         user_to_posts[row['posted_by']].append((row['song_name'], row['artist']))
     
     return user_to_posts
+
+def get_users_to_lyrics(users_to_posts, token):
+    """
+    Pull lyrics from genius for each song posted by each user.
+    """
+    users_to_lyrics = {}
+    for user, post_list in users_to_posts.items():
+        users_to_lyrics[user] = [get_lyrics(song, artist, token) for song, artist in post_list]
+    return users_to_lyrics
+
+def get_most_similar_users(user, dataset):
+    """
+    Compute similarity metric between given user and other users in dataset.
+    """
+    given_centroid = dataset[user][1]
+    similarity_scores = []
+    for other_user, centroid in DataLoader(dataset):
+        similarity_scores.append((other_user[0], similarity_score(given_centroid, centroid.numpy())))
+    return sorted(similarity_scores, key=lambda x: x[1])
+
+def create_user_similarity_matrix(users_to_lyrics, dataset):
+    user_similarity_matrix = pd.DataFrame(index=users_to_lyrics.keys(),
+                                     columns=users_to_lyrics.keys())
+    for user in user_similarity_matrix.index:
+        similarity_scores = get_most_similar_users(user, dataset)
+        for other_user, score in similarity_scores:
+            user_similarity_matrix.loc[user, other_user] = score
+    
+    return user_similarity_matrix
+    
