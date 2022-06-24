@@ -187,6 +187,25 @@ def get_users_to_posts(aws_access_key, aws_secret_key):
     
     return user_to_posts
 
+def get_users_to_spotify_uri(aws_access_key, aws_secret_key):
+    dynamodb = boto3.resource(
+                    'dynamodb',
+                    region_name='us-west-1',
+    aws_access_key_id=aws_access_key,
+    aws_secret_access_key=aws_secret_key)
+
+    # scan all posts and make dataframe
+    post_table = dynamodb.Table('posts')
+    post_df = pd.DataFrame(post_table.scan()['Items'])
+
+    # create dictionary
+    user_to_songs = {u: [] for u in np.unique(post_df['posted_by'])}
+    for _, row in post_df.iterrows():
+        user_to_songs[row['posted_by']].append(row['song'])
+    
+    return user_to_songs
+
+
 def get_users_to_lyrics(users_to_posts, token):
     """
     Pull lyrics from genius for each song posted by each user.
@@ -215,4 +234,4 @@ def create_user_similarity_matrix(users_to_lyrics, dataset):
             user_similarity_matrix.loc[user, other_user] = score
     
     return user_similarity_matrix
-    
+
