@@ -49,6 +49,10 @@ We generated fake users who only listen to one artist to use for validation. We 
 ![Kanye West Similarities](images/kanye_barchart.png)
 
 ## Future Extensions
+1. Augmentation for Matrix Factorization   
+  To take this project further in the future, we considered using our vector representations of users' taste in music as a feature in a more in-depth matrix factorization model. This would allow us to leverage the well-established power of matrix factorization with our additional knowledge about a user's taste in music, hopefully solving or alleviating the cold start problem.
+2. Ay-Yo! Enhancement  
+Additionally, we could apply the similarity scores we generated to make Ay-Yo! more engaging and interactive. For example, we could display your similarity to another user every time you click on another users profile. We could also use similarity scores to rank relevant results in our search algorithms.
 
 ## Sources/Dependencies
 - Ay-Yo! Homepage: https://ay-yo.click
