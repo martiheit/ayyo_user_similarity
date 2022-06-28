@@ -48,14 +48,10 @@ We generated fake users who only listen to one artist to use for validation. We 
 
 ![Kanye West Similarities](images/kanye_barchart.png)
 
-
-
-
-
-
-
+## Future Extensions
 
 ## Sources/Dependencies
 - Ay-Yo! Homepage: https://ay-yo.click
 - Lyricalgenius package: https://pypi.org/project/lyricsgenius/
 - GloVe 6B 300d embeddings: https://www.kaggle.com/datasets/thanakomsn/glove6b300dtxt
+- AWS
