@@ -70,7 +70,16 @@ def get_lyrics(song, artist, token):
         time.sleep(5)
         return genius.search_song(song, artist).lyrics
         
-    
+
+def get_song_list(artist, token):
+    genius = Genius(token)
+    try:
+        return [song.lyrics for song in genius.search_artist(artist, max_songs=5).songs]
+    except AttributeError:
+        return ''
+    except:
+        time.sleep(5)
+        return [song.lyrics for song in genius.search_artist(artist, max_songs=5).songs]
 
 def filelist(root):
     """Return a fully-qualified list of filenames under root directory"""
@@ -142,7 +151,7 @@ def compute_centroid(song_list, glove, tokenizer=None):
     return sum(vector_list)/n
 
 def similarity_score(user1, user2):
-    return np.linalg.norm(user1 - user2)
+    return 1/np.linalg.norm(user1 - user2)
 
 
 def get_users_to_posts(aws_access_key, aws_secret_key):
@@ -223,7 +232,7 @@ def get_most_similar_users(user, dataset):
     similarity_scores = []
     for other_user, centroid in DataLoader(dataset):
         similarity_scores.append((other_user[0], similarity_score(given_centroid, centroid.numpy())))
-    return sorted(similarity_scores, key=lambda x: x[1])
+    return sorted(similarity_scores, key=lambda x: x[1], reverse=True)
 
 def create_user_similarity_matrix(users_to_lyrics, dataset):
     user_similarity_matrix = pd.DataFrame(index=users_to_lyrics.keys(),
@@ -231,7 +240,11 @@ def create_user_similarity_matrix(users_to_lyrics, dataset):
     for user in user_similarity_matrix.index:
         similarity_scores = get_most_similar_users(user, dataset)
         for other_user, score in similarity_scores:
-            user_similarity_matrix.loc[user, other_user] = score
+            if other_user == user:
+                user_similarity_matrix.loc[user, other_user] = 0
+            else:
+                user_similarity_matrix.loc[user, other_user] = score
+        
     
     return user_similarity_matrix
 
