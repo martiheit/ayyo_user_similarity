@@ -58,4 +58,4 @@ Additionally, we could apply the similarity scores we generated to make Ay-Yo! m
 - Ay-Yo! Homepage: https://ay-yo.click
 - Lyricalgenius package: https://pypi.org/project/lyricsgenius/
 - GloVe 6B 300d embeddings: https://www.kaggle.com/datasets/thanakomsn/glove6b300dtxt
-- AWS
+- AWS: to run our notebook, you would need AWS keys to connect to our Ay-Yo! database but for privacy reasons, we cannot publish those keys
