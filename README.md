@@ -39,9 +39,20 @@ Finally, we computed the similarity score between user representations.
 $$\text {similarity score = }\frac 1 {\lVert \vec u_i - \vec u_j \rVert}$$
 
 ## Results
-Generally, the results from our investigation were encouraging! This was inherently an unsupervised task, as we were unable to label or validate that users are similar. However, we still found some interesting insights.
+Generally, the results from our investigation were encouraging! This was inherently an unsupervised task, as we were unable to label or validate that users are similar. However, we still found some interesting insights. We saw good variation in similarity scores, even for our small user base, which indicates that these scores could theoretically be used to recommend similar users.
 
 ![User Similarity Heatmap](images/user_heatmap.png)
+
+### Validation
+We generated fake users who only listen to one artist to use for validation. We compared a user who only listens to Kanye West to users who only listen to ASAP Rocky, Kid Cudi, Pusha T, and Big Sean (who are listed on Spotify as similar artists). We also compared our fake Kanye fan to a user who only listens to The Wiggles (a reasonably non-similar artist). As expected, the similarity scores were much higher for similar artists than for non similar artists, indicating that our algorithm is working. 
+
+![Kanye West Similarities](images/kanye_barchart.png)
+
+
+
+
+
+
 
 
 ## Sources/Dependencies
