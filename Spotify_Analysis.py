@@ -71,15 +71,15 @@ def get_lyrics(song, artist, token):
         return genius.search_song(song, artist).lyrics
         
 
-def get_song_list(artist, token):
+def get_song_list(artist, token, n=5):
     genius = Genius(token)
     try:
-        return [song.lyrics for song in genius.search_artist(artist, max_songs=5).songs]
+        return [song.lyrics for song in genius.search_artist(artist, max_songs=n).songs]
     except AttributeError:
         return ''
     except:
         time.sleep(5)
-        return [song.lyrics for song in genius.search_artist(artist, max_songs=5).songs]
+        return [song.lyrics for song in genius.search_artist(artist, max_songs=n).songs]
 
 def filelist(root):
     """Return a fully-qualified list of filenames under root directory"""
