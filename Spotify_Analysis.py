@@ -12,6 +12,9 @@ import re
 import string
 from lyricsgenius import Genius
 from torch.utils.data import Dataset, DataLoader
+import spotipy 
+from spotipy.oauth2 import SpotifyClientCredentials
+import pickle
 
 #### Variables ####
 ENGLISH_STOP_WORDS = frozenset([
@@ -214,6 +217,39 @@ def get_users_to_spotify_uri(aws_access_key, aws_secret_key):
     
     return user_to_songs
 
+def get_uri_to_song_info(cid, secret, uri_dict):
+    feat_dict = uri_dict.copy()
+    
+    client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
+    sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
+    
+    # For every song uri, retireve spotify feature data
+    for user, uris in feat_dict.items():
+        song_features = []
+        for uri in uris:
+            feats = sp.audio_features(uri)[0]
+            try:
+                energy = feats['energy'] 
+            except:
+                energy = 0
+            try:
+                loudness = feats['loudness']
+            except: 
+                loudness = 0
+            try:
+                danceability = feats['danceability']
+            except:
+                danceability = 0
+            try:
+                speechiness = feats['speechiness']
+            except:
+                speechiness = 0
+            info = np.array([energy, loudness, danceability, speechiness])
+            song_features.append(info)
+        feat_dict[user] = song_features
+    
+    return feat_dict
+
 
 def get_users_to_lyrics(users_to_posts, token):
     """
@@ -222,6 +258,10 @@ def get_users_to_lyrics(users_to_posts, token):
     users_to_lyrics = {}
     for user, post_list in users_to_posts.items():
         users_to_lyrics[user] = [get_lyrics(song, artist, token) for song, artist in post_list]
+        
+        file = open("users_to_lyrics.pkl", "wb")
+        pickle.dump(users_to_lyrics, file)
+        file.close()
     return users_to_lyrics
 
 def get_most_similar_users(user, dataset):
@@ -233,6 +273,16 @@ def get_most_similar_users(user, dataset):
     for other_user, centroid in DataLoader(dataset):
         similarity_scores.append((other_user[0], similarity_score(given_centroid, centroid.numpy())))
     return sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+
+def get_least_similar_users(user, dataset):
+    """
+    Compute similarity metric between given user and other users in dataset.
+    """
+    given_centroid = dataset[user][1]
+    similarity_scores = []
+    for other_user, centroid in DataLoader(dataset):
+        similarity_scores.append((other_user[0], similarity_score(given_centroid, centroid.numpy())))
+    return sorted(similarity_scores, key=lambda x: x[1], reverse=False)
 
 def create_user_similarity_matrix(users_to_lyrics, dataset):
     user_similarity_matrix = pd.DataFrame(index=users_to_lyrics.keys(),
